@@ -27,6 +27,8 @@ var dirs = [][]int{
   []int{ -1, 1 },
 }
 
+const word2 = "MAS"
+
 func main() {
   fmt.Print("Starting..\n")
 
@@ -42,7 +44,7 @@ func main() {
     os.Exit(1)
   }
 
-  fmt.Printf("Result: %v", res)
+  fmt.Printf("Result1: %v", res)
 }
 
 func Matrix() ([][]byte, error) {
@@ -93,8 +95,8 @@ func CheckWord(state *State, word string, xMlt int, yMlt int) bool {
   // Starting at the end catches index overflows in first iteration
   // also no need to check 0 index; already confirmed by this point
   for i := len(ascii_boys)-1; i > 0; i-- {
-    x := (state.x + i) * xMlt
-    y := (state.y + i) * yMlt
+    x := state.x + (i * xMlt)
+    y := state.y + (i * yMlt)
     if x < 0 || 
     y < 0 || 
     y >= len(state.matrix) || 
