@@ -14,11 +14,54 @@ type rule struct {
 }
 
 func main() {
+  rules, rows, err := getData("./input")
+  if err != nil {
+    fmt.Printf("Error occurred when getting input data: %v\n", err)
+  }
 
+  res := GetSumValidRows(rows, rules)
+  fmt.Printf("Result: %v", res)
 }
 
-func getData() ([]rule, [][]int, error) {
-  f, err := os.Open("./input")
+// Returns sum of middle values of all valid rows
+func GetSumValidRows(rows [][]int, rules []rule) int {
+  sum := 0
+  for _, v := range rows {
+    sum += GetValueForRow(v, rules)
+  }
+  return sum
+}
+
+// Returns 0 for invalid update row
+func GetValueForRow(row []int, rules []rule) int {
+  for i, _ := range row {
+    if IsAnyRuleBroken(row, rules, i) {
+      return 0
+    }
+  }
+  return row[(len(row)-1)/2]
+}
+
+func IsAnyRuleBroken(row []int, rules []rule, idx int) bool {
+  for _, rule := range rules {
+    if rule.first == row[idx] && IsRuleBroken(row, rule, idx) {
+      return true
+    }
+  }
+  return false
+}
+
+func IsRuleBroken(row []int, rule rule, firstNumIdx int) bool {
+  for i := 0; i < firstNumIdx; i++ {
+    if row[i] == rule.last {
+      return true
+    }
+  }
+  return false
+}
+
+func getData(filePath string) ([]rule, [][]int, error) {
+  f, err := os.Open(filePath)
   if err != nil {
     return nil, nil, fmt.Errorf("Error reading file: %w\n", err)
   }
@@ -29,7 +72,7 @@ func getData() ([]rule, [][]int, error) {
   for sc.Scan() {
     line++
     ruleArr := strings.Split(sc.Text(), "|")
-    if len(ruleArr) == 0 {
+    if len(ruleArr) == 1 {
       break
     } else if len(ruleArr) != 2 {
       return nil, nil, fmt.Errorf("Unexpected rule entry length on line %v: %v\n", line, len(ruleArr))
