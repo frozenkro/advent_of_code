@@ -64,6 +64,20 @@ func validCount(equations []equation) int {
 }
 
 func (e equation) isValid() bool {
-	//todo
-	return false
+	 return e.check(e.operators)
+}
+
+func (e equation)check(ops []int) bool {
+  if ops[0] > e.total {
+    return false
+  }
+  if len(ops) == 1 {
+    return ops[0] == e.total
+  }
+
+  rMul := ops[0] * ops[1]
+  rAdd := ops[0] + ops[1]
+  
+  return e.check(append([]int{rMul}, ops[1:]...)) || e.check(append([]int{rAdd}, ops[1:]...))
+
 }
