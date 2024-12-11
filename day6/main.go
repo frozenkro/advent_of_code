@@ -61,6 +61,7 @@ func totalGuardSpaces(data [][]byte) (int, error) {
   for {
     if data[loc.y][loc.x] != 'x' {
       total++
+      data[loc.y][loc.x] = 'x'
     }
 
     nextLoc = getNextLoc(*loc)
@@ -69,13 +70,15 @@ func totalGuardSpaces(data [][]byte) (int, error) {
     }
 
     for (data[nextLoc.y][nextLoc.x] == byte('#')) {
-      nextLoc.turn()
+      loc.turn()
+      nextLoc = getNextLoc(*loc)
       if (isOob(data, nextLoc)) {
         return total, nil
       }
     }
 
-    loc = &nextLoc
+    tloc := nextLoc
+    loc = &tloc
   }
 }
 
@@ -104,6 +107,7 @@ func (l *location) turn() {
   for i, v := range directions {
     if l.d == v {
       l.d = directions[(i+1)%len(directions)]
+      return
     }
   }
 }
