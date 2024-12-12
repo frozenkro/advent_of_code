@@ -14,7 +14,17 @@ type equation struct {
 }
 
 func main() {
+	data, err := getData("./input")
+	if err != nil {
+		fmt.Printf("Error occurred while processing input data: %v", err)
+		os.Exit(1)
+	}
 
+	result := validSum(data, false)
+	fmt.Printf("Result 1: '%d'", result)
+
+	result = validSum(data, true)
+	fmt.Printf("Result 2: '%d'", result)
 }
 
 func getData(path string) ([]equation, error) {
@@ -53,31 +63,54 @@ func getData(path string) ([]equation, error) {
 	return results, nil
 }
 
-func validCount(equations []equation) int {
+func validSum(equations []equation, concatOperator bool) int {
 	total := 0
 	for _, e := range equations {
-		if e.isValid() {
-			total++
+		if e.isValid(concatOperator) {
+			total += e.total
 		}
 	}
 	return total
 }
 
-func (e equation) isValid() bool {
-	 return e.check(e.operators)
+func (e equation) isValid(concatOperator bool) bool {
+	return e.check(e.operands, concatOperator)
 }
 
-func (e equation)check(ops []int) bool {
-  if ops[0] > e.total {
-    return false
-  }
-  if len(ops) == 1 {
-    return ops[0] == e.total
-  }
+func (e equation) check(ops []int, concatOperator bool) bool {
+	if ops[0] > e.total {
+		return false
+	}
+	if len(ops) == 1 {
+		return ops[0] == e.total
+	}
 
-  rMul := ops[0] * ops[1]
-  rAdd := ops[0] + ops[1]
-  
-  return e.check(append([]int{rMul}, ops[1:]...)) || e.check(append([]int{rAdd}, ops[1:]...))
+	mul := ops[0] * ops[1]
+	mOps := make([]int, len(ops)-1)
+	copy(mOps, ops[1:])
+	mOps[0] = mul
+
+	sum := ops[0] + ops[1]
+	aOps := make([]int, len(ops)-1)
+	copy(aOps, ops[1:])
+	aOps[0] = sum
+
+	if concatOperator {
+		catS := strconv.Itoa(ops[0]) + strconv.Itoa(ops[1])
+		cOps := make([]int, len(ops)-1)
+		copy(cOps, ops[1:])
+		cat, err := strconv.Atoi(catS)
+		cOps[0] = cat
+		if err != nil {
+			panic(err)
+		}
+		return e.check(mOps, concatOperator) ||
+			e.check(aOps, concatOperator) ||
+			e.check(cOps, concatOperator)
+	}
+
+	return e.check(mOps, concatOperator) ||
+		e.check(aOps, concatOperator)
 
 }
+
