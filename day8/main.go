@@ -74,8 +74,10 @@ func antinodes(frqGrps frqGrps) int {
 	total := 0
 	for _, nodes := range frqGrps {
 		for i, n := range nodes {
-			for _, n2 := range nodes[i:] {
-				total += compareNodes(n, n2)
+			if i < len(nodes)-1 {
+				for _, n2 := range nodes[i+1:] {
+					total += compareNodes(n, n2)
+				}
 			}
 		}
 	}
@@ -107,13 +109,13 @@ func validAnti(n node, nx node) (bool, node) {
 	if n.x > nx.x {
 		anti.x = n.x + n.x - nx.x
 	} else {
-		anti.x = nx.x - nx.x - n.x
+		anti.x = n.x - (nx.x - n.x)
 	}
 
 	if n.y > nx.y {
 		anti.y = n.y + n.y - nx.y
 	} else {
-		anti.y = nx.y - nx.y - n.y
+		anti.y = n.y - (nx.y - n.y)
 	}
 
 	valid := anti.y >= 0 &&
